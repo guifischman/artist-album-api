@@ -28,6 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // >>> BYPASS OBRIGATÓRIO PARA ENDPOINTS DE AUTENTICAÇÃO <<<
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        // >>> FIM DO BYPASS <<<
+
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
