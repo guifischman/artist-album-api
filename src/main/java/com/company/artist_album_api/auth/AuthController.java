@@ -19,11 +19,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+
+        AuthResponse response = authService.authenticate(request);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok(authService.refreshToken(request));
+
+        AuthResponse response = authService.refreshToken(request);
+
+        return ResponseEntity.ok(response);
     }
 }
