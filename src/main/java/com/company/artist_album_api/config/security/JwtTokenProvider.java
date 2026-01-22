@@ -10,24 +10,27 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String SECRET_KEY = "very-secret-key-change-in-production";
-    private final long EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutos
+    private static final String SECRET_KEY = "my-secret-key-change-in-prod";
 
-    public String generateToken(String username) {
-
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
-
+    public String generateToken(String username, int minutes) {
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + minutes * 60 * 1000))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
     public String getUsernameFromToken(String token) {
-
         Claims claims = Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
