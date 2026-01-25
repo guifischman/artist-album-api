@@ -1,39 +1,55 @@
 package com.company.artist_album_api.auth.service;
 
+
 import com.company.artist_album_api.auth.dto.AuthRequest;
 import com.company.artist_album_api.auth.dto.AuthResponse;
 import com.company.artist_album_api.auth.dto.RefreshTokenRequest;
-import com.company.artist_album_api.config.security.JwtTokenProvider;
+import com.company.artist_album_api.security.jwt.JwtService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
 
-    public AuthService(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public AuthService(JwtService jwtService) {
+        this.jwtService = jwtService;
     }
 
     public AuthResponse authenticate(AuthRequest request) {
 
-        // Exemplo simples (em produção: UserDetailsService + senha criptografada)
-        if (!"admin".equals(request.getUsername()) || !"admin".equals(request.getPassword())) {
+        // Simples, proposital (edital não exige banco de usuários)
+        if (!"admin".equals(request.username()) || !"admin".equals(request.password())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        String accessToken = jwtTokenProvider.generateToken(request.getUsername(), 5);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(request.getUsername());
+        String accessToken = jwtService.generateAccessToken(request.username());
+        String refreshToken = jwtService.generateRefreshToken(request.username());
 
-        return new AuthResponse(accessToken, refreshToken, 300);
+        return new AuthResponse(
+                accessToken,
+                refreshToken,
+                jwtService.getAccessTokenExpirationSeconds()
+        );
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
 
-        String username = jwtTokenProvider.getUsernameFromToken(request.getRefreshToken());
+        String refreshToken = request.refreshToken();
 
-        String newAccessToken = jwtTokenProvider.generateToken(username, 5);
+        if (!jwtService.isTokenValid(refreshToken)) {
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
 
-        return new AuthResponse(newAccessToken, request.getRefreshToken(), 300);
+        String subject = jwtService.extractSubject(refreshToken);
+
+        String newAccessToken = jwtService.generateAccessToken(subject);
+        String newRefreshToken = jwtService.generateRefreshToken(subject);
+
+        return new AuthResponse(
+                newAccessToken,
+                newRefreshToken,
+                jwtService.getAccessTokenExpirationSeconds()
+        );
     }
 }

@@ -1,14 +1,7 @@
 package com.company.artist_album_api.auth.dto;
 
-public class RefreshTokenRequest {
+public record RefreshTokenRequest(
+        String refreshToken
+) {}
 
-    private String refreshToken;
 
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-}
