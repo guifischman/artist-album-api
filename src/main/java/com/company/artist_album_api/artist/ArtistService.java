@@ -2,7 +2,9 @@ package com.company.artist_album_api.artist;
 
 import com.company.artist_album_api.model.Artist;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArtistService {
@@ -13,9 +15,19 @@ public class ArtistService {
         this.artistRepository = artistRepository;
     }
 
-    public List<Artist> searchByName(String name, boolean asc) {
-        return asc
-            ? artistRepository.findByNameContainingIgnoreCaseOrderByNameAsc(name)
-            : artistRepository.findByNameContainingIgnoreCaseOrderByNameDesc(name);
+    public Artist save(Artist artist) {
+        return artistRepository.save(artist);
+    }
+
+    public List<Artist> findAll() {
+        return artistRepository.findAll();
+    }
+
+    public Optional<Artist> findById(Long id) {
+        return artistRepository.findById(id);
+    }
+
+    public void delete(Long id) {
+        artistRepository.deleteById(id);
     }
 }

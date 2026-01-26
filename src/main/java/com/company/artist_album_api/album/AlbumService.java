@@ -2,8 +2,8 @@ package com.company.artist_album_api.album;
 
 import com.company.artist_album_api.model.Album;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 @Service
 public class AlbumService {
@@ -14,11 +14,16 @@ public class AlbumService {
         this.albumRepository = albumRepository;
     }
 
-    public Page<Album> getAlbums(Pageable pageable) {
-        return albumRepository.findAll(pageable);
-    }
-
     public Album save(Album album) {
         return albumRepository.save(album);
+    }
+
+    public List<Album> findAll() {
+        return albumRepository.findAll();
+    }
+
+    public Album findById(Long id) {
+        return albumRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Album not found: " + id));
     }
 }

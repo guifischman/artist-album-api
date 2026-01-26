@@ -1,5 +1,6 @@
 package com.company.artist_album_api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class Artist {
     private ArtistType type;
 
     @ManyToMany(mappedBy = "artists")
+    @JsonIgnore
     private Set<Album> albums;
 
     public Long getId() {
@@ -53,3 +55,5 @@ public class Artist {
         this.albums = albums;
     }
 }
+
+
