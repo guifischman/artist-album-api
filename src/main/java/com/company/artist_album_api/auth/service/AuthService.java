@@ -1,55 +1,63 @@
 package com.company.artist_album_api.auth.service;
 
-
-import com.company.artist_album_api.auth.dto.AuthRequest;
 import com.company.artist_album_api.auth.dto.AuthResponse;
-import com.company.artist_album_api.auth.dto.RefreshTokenRequest;
 import com.company.artist_album_api.security.jwt.JwtService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
+    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
-    public AuthService(JwtService jwtService) {
+    public AuthService(
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            UserDetailsService userDetailsService
+    ) {
+        this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
-    public AuthResponse authenticate(AuthRequest request) {
+    public AuthResponse authenticate(String username, String password) {
 
-        // Simples, proposital (edital não exige banco de usuários)
-        if (!"admin".equals(request.username()) || !"admin".equals(request.password())) {
-            throw new RuntimeException("Invalid credentials");
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
 
-        String accessToken = jwtService.generateAccessToken(request.username());
-        String refreshToken = jwtService.generateRefreshToken(request.username());
+        UserDetails user = userDetailsService.loadUserByUsername(username);
 
+        String token = jwtService.generateToken(user);
+
+        // Enquanto não houver refresh token real, reutilizamos o mesmo JWT
         return new AuthResponse(
-                accessToken,
-                refreshToken,
-                jwtService.getAccessTokenExpirationSeconds()
+                token,
+                token,
+                0L
         );
     }
 
-    public AuthResponse refreshToken(RefreshTokenRequest request) {
+    public AuthResponse refreshToken(String refreshToken) {
 
-        String refreshToken = request.refreshToken();
+        String username = jwtService.extractUsername(refreshToken);
+        UserDetails user = userDetailsService.loadUserByUsername(username);
 
-        if (!jwtService.isTokenValid(refreshToken)) {
-            throw new RuntimeException("Invalid or expired refresh token");
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new RuntimeException("Invalid token");
         }
 
-        String subject = jwtService.extractSubject(refreshToken);
-
-        String newAccessToken = jwtService.generateAccessToken(subject);
-        String newRefreshToken = jwtService.generateRefreshToken(subject);
+        String newToken = jwtService.generateToken(user);
 
         return new AuthResponse(
-                newAccessToken,
-                newRefreshToken,
-                jwtService.getAccessTokenExpirationSeconds()
+                newToken,
+                newToken,
+                0L
         );
     }
 }

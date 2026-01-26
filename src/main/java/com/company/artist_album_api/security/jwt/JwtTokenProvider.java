@@ -1,4 +1,4 @@
-package com.company.artist_album_api.config.security;
+package com.company.artist_album_api.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

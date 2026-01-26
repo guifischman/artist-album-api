@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -20,7 +20,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
 
-        AuthResponse response = authService.authenticate(request);
+        AuthResponse response =
+                authService.authenticate(request.username(), request.password());
 
         return ResponseEntity.ok(response);
     }
@@ -28,7 +29,8 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
 
-        AuthResponse response = authService.refreshToken(request);
+        AuthResponse response =
+                authService.refreshToken(request.refreshToken());
 
         return ResponseEntity.ok(response);
     }

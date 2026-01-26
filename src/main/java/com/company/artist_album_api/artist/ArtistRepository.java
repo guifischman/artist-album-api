@@ -8,3 +8,5 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
     List<Artist> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
     List<Artist> findByNameContainingIgnoreCaseOrderByNameDesc(String name);
 }
+
+
