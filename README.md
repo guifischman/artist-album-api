@@ -1,195 +1,194 @@
-##Artist & Album API — Java Backend##
+\# Artist Album API
 
-1. Visão Geral
 
-Este projeto implementa uma API REST em Java para disponibilização e gerenciamento de dados de artistas musicais e seus álbuns, permitindo consultas, cadastros, integrações externas e notificações em tempo real.
 
-O domínio da aplicação é exemplificado com a banda Guns N’ Roses e os álbuns:
+API REST para gerenciamento de artistas e álbuns musicais, desenvolvida em Java com Spring Boot, como solução para desafio técnico.
 
-Use Your Illusion I (1991)
 
-Use Your Illusion II (1991)
 
-Greatest Hits (2004)
+O projeto foi estruturado visando qualidade de código, clareza arquitetural, facilidade de evolução e aderência aos requisitos propostos no edital.
 
-Esses dados são utilizados como carga inicial do banco, versionada via Flyway, garantindo reprodutibilidade e consistência do ambiente.
 
-2. Escopo Funcional
 
-A API oferece as seguintes capacidades:
+---
 
-Cadastro e consulta de artistas (bandas e/ou cantores);
 
-Cadastro e consulta de álbuns musicais;
 
-Relacionamento N:N entre artistas e álbuns;
+\## Tecnologias Utilizadas
 
-Consultas parametrizadas para identificar álbuns por tipo de artista;
 
-Paginação e ordenação nas consultas;
 
-Upload de uma ou mais imagens de capa de álbuns;
+\- Java 17
 
-Armazenamento de imagens em MinIO (API compatível S3);
+\- Spring Boot
 
-Geração de links pré-assinados para download das capas;
+\- Spring Data JPA
 
-Notificação em tempo real via WebSocket a cada novo álbum cadastrado.
+\- Maven
 
-3. Arquitetura e Tecnologias
-Backend
+\- Flyway
 
-Java 17
+\- Banco de Dados Relacional (H2/PostgreSQL)
 
-Spring Boot
+\- OpenAPI / Swagger (em progresso)
 
-Spring Data JPA
+\- Docker / Docker Compose (em progresso)
 
-Spring Security + JWT
 
-Persistência
 
-PostgreSQL
+---
 
-Flyway Migrations (criação e carga inicial do banco)
 
-Infraestrutura
 
-Docker
+\## Modelagem de Domínio
 
-Docker Compose
 
-MinIO (armazenamento de objetos compatível com S3)
 
-Integrações e Qualidade
+\### Artista
 
-WebSocket (notificação de novos álbuns)
+\- Pode representar um \*\*cantor(a)\*\* ou uma \*\*banda\*\*
 
-Rate Limit (10 requisições/minuto por usuário)
+\- Campos principais:
 
-Health Check / Liveness / Readiness
+&nbsp; - `id`
 
-OpenAPI / Swagger
+&nbsp; - `name`
 
-As tecnologias foram escolhidas visando padrões de mercado, facilidade de evolução, escalabilidade e manutenibilidade.
+&nbsp; - `type` (`SINGER` | `BAND`)
 
-4. Versionamento de API
 
-Todos os endpoints são versionados no padrão:
 
-/v1/...
+\### Álbum
 
+\- Representa um álbum musical
 
-Esse modelo permite evolução futura sem quebra de compatibilidade com consumidores existentes.
+\- Campos principais:
 
-5. Como Executar o Projeto
-5.1 Execução via Docker (recomendado)
+&nbsp; - `id`
 
-Pré-requisitos:
+&nbsp; - `title`
 
-Docker
+&nbsp; - `releaseYear`
 
-Docker Compose
 
-Comando:
 
-docker-compose up --build
+\### Relacionamento
 
+\- \*\*Artista ↔ Álbum\*\*: N:N  
 
-Esse comando inicializa:
+&nbsp; Um artista pode ter vários álbuns e um álbum pode estar associado a mais de um artista.
 
-API Java
 
-Banco de dados PostgreSQL
 
-MinIO
+Essa decisão arquitetural foi adotada para garantir escalabilidade e evitar retrabalho em cenários futuros (ex: colaborações).
 
-5.2 Execução Local (opcional)
 
-Pré-requisitos:
 
-Java 17+
+---
 
-Maven
 
-Docker (para banco e MinIO)
 
-mvn clean package
-docker-compose up
+\## Carga Inicial de Dados (Flyway)
 
-6. Banco de Dados e Carga Inicial
 
-O banco de dados é gerenciado via Flyway.
 
-Na inicialização da aplicação:
+O projeto utiliza \*\*Flyway Migrations\*\* para criação e versionamento do schema e carga inicial de dados.
 
-As tabelas são criadas automaticamente;
 
-Os dados de exemplo (Guns N’ Roses e seus álbuns) são inseridos;
 
-As migrações são versionadas, garantindo histórico e rastreabilidade.
+\### Artistas cadastrados
 
-7. Endpoints Principais (Visão Geral)
 
-Exemplos de endpoints expostos:
 
-GET /v1/artists
+\- Serj Tankian (SINGER)
 
-GET /v1/artists?name=Guns&sort=asc
+\- Mike Shinoda (SINGER)
 
-GET /v1/albums?page=0&size=10
+\- Guns N’ Roses (BAND)
 
-POST /v1/albums
 
-POST /v1/albums/{id}/covers
 
-GET /v1/albums/{id}/covers (link pré-assinado)
+\### Álbuns cadastrados
 
-A documentação completa está disponível via Swagger/OpenAPI.
 
-8. Segurança
 
-Autenticação via JWT
+\*\*Serj Tankian\*\*
 
-Token com expiração de 5 minutos
+\- Harakiri (2012)
 
-Endpoint para renovação do token
+\- Black Blooms (2021)
 
-Rate limit: 10 requisições por minuto por usuário
+\- The Rough Dog (2021)
 
-Restrição de acesso via CORS para domínios autorizados
 
-9. WebSocket
 
-A aplicação disponibiliza um canal WebSocket para notificar clientes sempre que um novo álbum é cadastrado, permitindo integração em tempo real com aplicações frontend.
+\*\*Mike Shinoda\*\*
 
-10. Endpoint de Regionais
+\- The Rising Tied (2005)
 
-A API integra-se ao endpoint externo:
+\- Post Traumatic (2018)
 
-https://integrador-argus-api.geia.vip/v1/regionais
+\- Post Traumatic EP (2018)
 
+\- Where’d You Go (2006)
 
-Funcionalidades:
 
-Importação da lista para tabela interna;
 
-Atributo ativo para controle de vigência;
+\*\*Guns N’ Roses\*\*
 
-Sincronização com baixa complexidade:
+\- Use Your Illusion I (1991)
 
-Novo no endpoint → inserir;
+\- Use Your Illusion II (1991)
 
-Ausente no endpoint → inativar;
+\- Greatest Hits (2004)
 
-Alterado → inativar antigo e criar novo registro.
 
-11. Testes
 
-Testes unitários para camadas de serviço e domínio;
+A carga inicial permite validação de:
 
-Foco em legibilidade, isolamento e clareza;
+\- Paginação
 
-Execução via:
+\- Ordenação
 
-mvn test
+\- Filtros por artista
+
+\- Relacionamento N:N
+
+
+
+---
+
+
+
+\## Estrutura do Projeto
+
+
+
+```text
+
+src/main/java/com/company/artist\_album\_api
+
+├── album
+
+│   ├── controller
+
+│   ├── service
+
+│   ├── repository
+
+│   └── dto
+
+├── artist
+
+│   ├── controller
+
+│   ├── service
+
+│   ├── repository
+
+│   └── dto
+
+└── config
+
+
+
