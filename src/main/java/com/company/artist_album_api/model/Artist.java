@@ -1,59 +1,44 @@
 package com.company.artist_album_api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.util.Set;
 
 @Entity
-@Table(name = "artists")
 public class Artist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 200)
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
     private ArtistType type;
 
-    @ManyToMany(mappedBy = "artists")
-    @JsonIgnore
-    private Set<Album> albums;
+    // ===== GETTERS =====
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public ArtistType getType() {
         return type;
+    }
+
+    // ===== SETTERS =====
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setType(ArtistType type) {
         this.type = type;
     }
-
-    public Set<Album> getAlbums() {
-        return albums;
-    }
-
-    public void setAlbums(Set<Album> albums) {
-        this.albums = albums;
-    }
 }
-
-

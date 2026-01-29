@@ -2,16 +2,16 @@ package com.company.artist_album_api.album;
 
 import com.company.artist_album_api.album.dto.AlbumRequest;
 import com.company.artist_album_api.album.dto.AlbumResponse;
-import com.company.artist_album_api.album.AlbumRepository;
 import com.company.artist_album_api.artist.ArtistRepository;
 import com.company.artist_album_api.model.Album;
 import com.company.artist_album_api.model.Artist;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class AlbumService {
@@ -25,42 +25,65 @@ public class AlbumService {
         this.artistRepository = artistRepository;
     }
 
-    public AlbumResponse create(AlbumRequest request) {
-
-        Set<Artist> artists = artistRepository.findAllById(request.getArtistIds())
-                .stream()
-                .collect(Collectors.toSet());
-
-        Album album = new Album();
-        album.setTitle(request.getTitle());
-        album.setArtists(artists);
-
-        Album saved = albumRepository.save(album);
-        return toResponse(saved);
-    }
-
     public Page<AlbumResponse> findAll(Pageable pageable) {
         return albumRepository.findAll(pageable)
-                .map(this::toResponse);
+                .map(AlbumResponse::fromEntity);
     }
 
-    private AlbumResponse toResponse(Album album) {
+    public AlbumResponse findById(Long id) {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado"));
+        return AlbumResponse.fromEntity(album);
+    }
 
-        Set<String> artistNames = album.getArtists()
-                .stream()
-                .map(Artist::getName)
-                .collect(Collectors.toSet());
+    public Page<AlbumResponse> findByTitle(String title, Pageable pageable) {
+        return albumRepository.findByTitleContainingIgnoreCase(title, pageable)
+                .map(AlbumResponse::fromEntity);
+    }
 
-        Set<String> artistTypes = album.getArtists()
-                .stream()
-                .map(artist -> artist.getType().name())
-                .collect(Collectors.toSet());
+    public Page<AlbumResponse> findByArtist(Long artistId, Pageable pageable) {
+        return albumRepository.findByArtistId(artistId, pageable)
+                .map(AlbumResponse::fromEntity);
+    }
 
-        return new AlbumResponse(
-                album.getId(),
-                album.getTitle(),
-                artistNames,
-                artistTypes
+    public AlbumResponse create(AlbumRequest request) {
+
+        Set<Artist> artists = new HashSet<>(
+                artistRepository.findAllById(request.artistIds())
         );
+
+        if (artists.isEmpty()) {
+            throw new EntityNotFoundException("Nenhum artista encontrado para os IDs informados");
+        }
+
+        Album album = new Album();
+        album.setTitle(request.title());
+        album.setReleaseDate(request.releaseDate());
+        album.setArtists(artists);
+
+        return AlbumResponse.fromEntity(albumRepository.save(album));
+    }
+
+    public AlbumResponse update(Long id, AlbumRequest request) {
+
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado"));
+
+        Set<Artist> artists = new HashSet<>(
+                artistRepository.findAllById(request.artistIds())
+        );
+
+        album.setTitle(request.title());
+        album.setReleaseDate(request.releaseDate());
+        album.setArtists(artists);
+
+        return AlbumResponse.fromEntity(albumRepository.save(album));
+    }
+
+    public void delete(Long id) {
+        if (!albumRepository.existsById(id)) {
+            throw new EntityNotFoundException("Álbum não encontrado");
+        }
+        albumRepository.deleteById(id);
     }
 }

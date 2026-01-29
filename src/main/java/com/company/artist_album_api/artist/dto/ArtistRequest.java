@@ -1,16 +1,28 @@
 package com.company.artist_album_api.artist.dto;
 
-import com.company.artist_album_api.model.ArtistType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
-public record ArtistRequest(
+public class ArtistRequest {
 
-        @NotBlank
-        @Size(max = 200)
-        String name,
+    @NotBlank
+    private String name;
 
-        @NotNull
-        ArtistType type
-) {}
+    @NotBlank
+    private String type;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+}

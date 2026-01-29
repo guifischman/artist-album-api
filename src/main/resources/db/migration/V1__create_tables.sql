@@ -1,16 +1,24 @@
--- Criação da tabela de artistas
+-- =========================
+-- TABELA DE ARTISTAS
+-- =========================
 CREATE TABLE artist (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL
 );
 
--- Criação da tabela de álbuns
+-- =========================
+-- TABELA DE ÁLBUNS
+-- =========================
 CREATE TABLE album (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL
 );
 
--- Tabela de relacionamento N:N entre artistas e álbuns
+-- =========================
+-- TABELA DE RELACIONAMENTO N:N
+-- ARTISTAS <-> ÁLBUNS
+-- =========================
 CREATE TABLE artist_album (
     artist_id INT NOT NULL,
     album_id INT NOT NULL,

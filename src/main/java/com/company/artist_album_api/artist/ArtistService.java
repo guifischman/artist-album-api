@@ -1,10 +1,13 @@
 package com.company.artist_album_api.artist;
 
+import com.company.artist_album_api.artist.dto.ArtistRequest;
+import com.company.artist_album_api.artist.dto.ArtistResponse;
+import com.company.artist_album_api.common.exception.ResourceNotFoundException;
 import com.company.artist_album_api.model.Artist;
+import com.company.artist_album_api.model.ArtistType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ArtistService {
@@ -15,19 +18,58 @@ public class ArtistService {
         this.artistRepository = artistRepository;
     }
 
-    public Artist save(Artist artist) {
-        return artistRepository.save(artist);
+    public Page<ArtistResponse> findAll(Pageable pageable) {
+        return artistRepository
+                .findAll(pageable)
+                .map(ArtistResponse::fromEntity);
     }
 
-    public List<Artist> findAll() {
-        return artistRepository.findAll();
+    public Page<ArtistResponse> findByName(String name, Pageable pageable) {
+        return artistRepository
+                .findByNameContainingIgnoreCase(name, pageable)
+                .map(ArtistResponse::fromEntity);
     }
 
-    public Optional<Artist> findById(Long id) {
-        return artistRepository.findById(id);
+    public ArtistResponse findById(Long id) {
+        Artist artist = artistRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Artist not found with id " + id)
+                );
+
+        return ArtistResponse.fromEntity(artist);
+    }
+
+    public ArtistResponse create(ArtistRequest request) {
+        Artist artist = new Artist();
+        artist.setName(request.getName());
+        artist.setType(ArtistType.valueOf(request.getType()));
+
+        Artist saved = artistRepository.save(artist);
+        return ArtistResponse.fromEntity(saved);
+    }
+
+    public ArtistResponse update(Long id, ArtistRequest request) {
+        Artist artist = artistRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Artist not found with id " + id)
+                );
+
+        artist.setName(request.getName());
+        artist.setType(ArtistType.valueOf(request.getType()));
+
+        Artist updated = artistRepository.save(artist);
+        return ArtistResponse.fromEntity(updated);
     }
 
     public void delete(Long id) {
-        artistRepository.deleteById(id);
+        Artist artist = artistRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Artist not found with id " + id)
+                );
+
+        artistRepository.delete(artist);
     }
 }

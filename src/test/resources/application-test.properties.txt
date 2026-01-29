@@ -1,0 +1,30 @@
+# ===============================
+# PROFILE DE TESTE
+# ===============================
+spring.profiles.active=test
+
+# ===============================
+# BANCO (mock / não usado)
+# ===============================
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=false
+
+spring.flyway.enabled=false
+
+# ===============================
+# JWT (OBRIGATÓRIO PARA SUBIR O CONTEXTO)
+# ===============================
+jwt.secret=test-secret-key-only-for-tests
+jwt.expiration=3600000
+jwt.issuer=artist-album-api-test
+
+# ===============================
+# SERVER
+# ===============================
+server.port=0

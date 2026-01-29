@@ -1,10 +1,10 @@
 package com.company.artist_album_api.artist;
 
-import com.company.artist_album_api.model.Artist;
-import org.springframework.http.ResponseEntity;
+import com.company.artist_album_api.artist.dto.ArtistRequest;
+import com.company.artist_album_api.artist.dto.ArtistResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/artists")
@@ -17,26 +17,36 @@ public class ArtistController {
     }
 
     @PostMapping
-    public ResponseEntity<Artist> create(@RequestBody Artist artist) {
-        Artist saved = artistService.save(artist);
-        return ResponseEntity.ok(saved);
+    public ArtistResponse create(@RequestBody ArtistRequest request) {
+        return artistService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public ArtistResponse update(
+            @PathVariable Long id,
+            @RequestBody ArtistRequest request
+    ) {
+        return artistService.update(id, request);
     }
 
     @GetMapping
-    public ResponseEntity<List<Artist>> findAll() {
-        return ResponseEntity.ok(artistService.findAll());
+    public Page<ArtistResponse> findAll(
+            @RequestParam(required = false) String name,
+            Pageable pageable
+    ) {
+        if (name != null && !name.isBlank()) {
+            return artistService.findByName(name, pageable);
+        }
+        return artistService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Artist> findById(@PathVariable Long id) {
-        return artistService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ArtistResponse findById(@PathVariable Long id) {
+        return artistService.findById(id);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         artistService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 }
