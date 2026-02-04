@@ -2,7 +2,7 @@
 -- TABELA DE ARTISTAS
 -- =========================
 CREATE TABLE artist (
-    id SERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL
 );
@@ -11,18 +11,27 @@ CREATE TABLE artist (
 -- TABELA DE ÁLBUNS
 -- =========================
 CREATE TABLE album (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL
+    id BIGINT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    release_year INTEGER NOT NULL,
+    artist_id BIGINT NOT NULL,
+    CONSTRAINT fk_album_artist
+        FOREIGN KEY (artist_id)
+        REFERENCES artist(id)
 );
 
 -- =========================
--- TABELA DE RELACIONAMENTO N:N
+-- RELACIONAMENTO N:N
 -- ARTISTAS <-> ÁLBUNS
 -- =========================
 CREATE TABLE artist_album (
-    artist_id INT NOT NULL,
-    album_id INT NOT NULL,
+    artist_id BIGINT NOT NULL,
+    album_id BIGINT NOT NULL,
     PRIMARY KEY (artist_id, album_id),
-    CONSTRAINT fk_artist FOREIGN KEY (artist_id) REFERENCES artist(id),
-    CONSTRAINT fk_album FOREIGN KEY (album_id) REFERENCES album(id)
+    CONSTRAINT fk_artist_album_artist
+        FOREIGN KEY (artist_id)
+        REFERENCES artist(id),
+    CONSTRAINT fk_artist_album_album
+        FOREIGN KEY (album_id)
+        REFERENCES album(id)
 );

@@ -2,36 +2,42 @@ package com.company.artist_album_api.auth;
 
 import com.company.artist_album_api.auth.dto.AuthRequest;
 import com.company.artist_album_api.auth.dto.AuthResponse;
-import com.company.artist_album_api.auth.dto.RefreshTokenRequest;
-import com.company.artist_album_api.auth.service.AuthService;
+import com.company.artist_album_api.security.jwt.JwtService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(
+            AuthenticationManager authenticationManager,
+            JwtService jwtService
+    ) {
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody AuthRequest request
+    ) {
 
-        AuthResponse response =
-                authService.authenticate(request.username(), request.password());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
 
-        return ResponseEntity.ok(response);
-    }
+        String token = jwtService.generateToken(authentication.getName());
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
-
-        AuthResponse response =
-                authService.refreshToken(request.refreshToken());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

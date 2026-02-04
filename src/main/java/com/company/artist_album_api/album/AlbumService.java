@@ -2,7 +2,7 @@ package com.company.artist_album_api.album;
 
 import com.company.artist_album_api.album.dto.AlbumRequest;
 import com.company.artist_album_api.album.dto.AlbumResponse;
-import com.company.artist_album_api.artist.ArtistRepository;
+import com.company.artist_album_api.repository.ArtistRepository;
 import com.company.artist_album_api.model.Album;
 import com.company.artist_album_api.model.Artist;
 import jakarta.persistence.EntityNotFoundException;

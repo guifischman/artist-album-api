@@ -1,29 +1,37 @@
 package com.company.artist_album_api.security.jwt;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+@Configuration
+@ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
 
-    @Value("${jwt.secret}")
     private String secret;
-
-    @Value("${jwt.expiration}")
-    private long expiration;
-
-    @Value("${jwt.refresh-expiration}")
-    private long refreshExpiration;
+    private Long expiration;
+    private Long refreshExpiration;
 
     public String getSecret() {
         return secret;
     }
 
-    public long getExpiration() {
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
+    public Long getExpiration() {
         return expiration;
     }
 
-    public long getRefreshExpiration() {
+    public void setExpiration(Long expiration) {
+        this.expiration = expiration;
+    }
+
+    public Long getRefreshExpiration() {
         return refreshExpiration;
+    }
+
+    public void setRefreshExpiration(Long refreshExpiration) {
+        this.refreshExpiration = refreshExpiration;
     }
 }

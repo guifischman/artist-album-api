@@ -1,9 +1,11 @@
 package com.company.artist_album_api.security.user;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 @Service
+@Primary
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
