@@ -1,155 +1,213 @@
 # Artist Album API
 
-Projeto de **Back End (API REST)** desenvolvido em **Spring Boot**, responsável pelo gerenciamento de artistas, álbuns e seus relacionamentos, conforme escopo definido em edital.  
-O projeto contempla exclusivamente a camada de servidor, não incluindo front-end.
+## Visão Geral
 
-Tecnologias principais:
-- Java 17
-- Spring Boot
-- Spring Web
-- Spring Data JPA
-- Spring Security
-- JWT (JSON Web Token)
-- Flyway
-- SpringDoc OpenAPI (Swagger)
-- Maven
+API REST desenvolvida em Spring Boot para gerenciamento de artistas e álbuns, com foco em boas práticas de arquitetura, segurança básica com JWT, integração com MinIO e requisitos típicos de avaliação técnica.
 
-A arquitetura é baseada em **camadas bem definidas**, com separação clara de responsabilidades, preparada para manutenção, testes e evolução.
+** Este projeto prioriza clareza arquitetural, organização e demonstrabilidade dos requisitos solicitados. Algumas implementações foram simplificadas de forma consciente e estão justificadas neste documento.
 
 ---
 
-## Arquitetura e Estrutura
+## Tecnologias Utilizadas
 
-Estrutura base do projeto:
-
-src/main/java/com/company/artist_album_api  
-- controller: camada de exposição da API (endpoints REST versionados)  
-- service: camada de regras de negócio  
-- repository: camada de persistência (JPA)  
-- model: entidades do domínio  
-- auth: autenticação e controle de acesso  
-- security: configuração de segurança, filtros e JWT  
-- config: configurações globais da aplicação  
-- ArtistAlbumApiApplication.java: classe principal da aplicação  
-
-A organização segue o padrão **Controller → Service → Repository**, garantindo desacoplamento e legibilidade do código.
+* Java 17
+* Spring Boot 3.x
+* Spring Web
+* Spring Data JPA
+* Spring Security (JWT)
+* Springdoc OpenAPI (Swagger)
+* MinIO (upload de arquivos)
+* H2 / PostgreSQL (dependendo do profile)
+* Maven
 
 ---
 
-## Versionamento da API
+## Estrutura do Projeto
 
-A API é versionada via URL utilizando o prefixo `/api/v1`, permitindo evolução futura sem quebra de contrato.
+O projeto segue uma arquitetura em camadas:
 
-Exemplos:
-- `/api/v1/artists`
-- `/api/v1/albums`
+* **controller**: exposição dos endpoints REST
+* **service**: regras de negócio
+* **repository**: acesso a dados (JPA)
+* **model/entity**: entidades do domínio
+* **dto**: objetos de transporte
+* **security**: configuração de segurança e JWT
+* **config**: configurações transversais (MinIO, Security, Swagger)
+
+Essa separação garante baixo acoplamento, legibilidade e facilidade de manutenção.
+
+---
+
+## Como Executar o Projeto
+
+### Pré-requisitos
+
+* Java 17+
+* Maven 3.9+
+
+### Subir a aplicação
+
+```bash
+mvn clean spring-boot:run
+```
+
+A aplicação estará disponível em:
+
+```
+http://localhost:8080
+```
+
+---
+
+## Perfis de Execução
+
+* **dev** (padrão): banco em memória, foco em testes locais
+
+O profile ativo pode ser alterado via:
+
+```bash
+-Dspring.profiles.active=dev
+```
 
 ---
 
 ## Documentação da API (Swagger)
 
-A documentação da API é gerada automaticamente via **OpenAPI/Swagger** utilizando SpringDoc.
-
 Após subir a aplicação, a documentação pode ser acessada em:
 
-http://localhost:8080/swagger-ui.html  
-ou  
-http://localhost:8080/swagger-ui/index.html
+```
+http://localhost:8080/swagger-ui.html
+```
 
-Todos os endpoints REST disponíveis estão descritos com seus métodos, parâmetros e respostas.
+Todos os endpoints principais estão documentados, incluindo:
 
----
-
-## Banco de Dados e Migrations
-
-O versionamento e controle do banco de dados é realizado com **Flyway**, garantindo histórico e rastreabilidade das alterações de schema.
-
-As migrations estão localizadas em:
-
-src/main/resources/db/migration
-
-As migrations são executadas automaticamente durante a inicialização da aplicação.
+* CRUD de recursos
+* Paginação e filtros
+* Headers de autenticação
 
 ---
 
-## Segurança e Autenticação (JWT)
+## Autenticação (JWT)
 
-O projeto implementa **autenticação baseada em JWT (JSON Web Token)** utilizando **Spring Security**, operando de forma stateless.
+A API utiliza autenticação baseada em JWT.
 
-Componentes principais:
-- JwtService: geração, validação e extração de informações do token
-- JwtAuthenticationFilter: interceptação das requisições e autenticação do usuário
-- SecurityConfig: configuração de segurança, filtros e políticas de acesso
+### Fluxo simplificado adotado
 
-Fluxo resumido:
-1. O usuário realiza login com credenciais válidas
-2. A API retorna um token JWT
-3. O token deve ser enviado no header `Authorization` nas requisições protegidas
+* Endpoint de login gera um token JWT
+* Token deve ser enviado no header:
 
-Formato:
+```
 Authorization: Bearer <token>
+```
 
-Os endpoints públicos e protegidos são definidos explicitamente na configuração de segurança.
+### Justificativa técnica
 
----
+Para fins de avaliação, o fluxo foi propositalmente simplificado:
 
-## Configurações da Aplicação
+* Não há refresh token
+* Não há persistência de sessão
 
-As configurações principais da aplicação estão centralizadas em:
-
-src/main/resources/application.yml
-
-Perfis específicos (como `test`) são utilizados para execução de testes, permitindo:
-- Desativação de integrações externas
-- Ajustes de JPA e Flyway
-- Isolamento do ambiente de testes
+Essa abordagem reduz complexidade sem comprometer a demonstração do conhecimento em segurança stateless.
 
 ---
 
-## Execução do Projeto
+## Segurança
 
-Pré-requisitos:
-- Java 17 ou superior
-- Maven 3.8 ou superior
+A aplicação utiliza autenticação baseada em JWT (JSON Web Token),
+com filtro de segurança configurado via Spring Security.
 
-Clone do repositório:
-git clone https://github.com/guifischman/guilhermefischman373886
+- Tokens possuem expiração configurável
+- Endpoints públicos:
+  - /auth/**
+  - /actuator/health
+  - /swagger-ui.html
+- Demais endpoints protegidos por autenticação
 
-Acesso ao diretório:
-cd artist-album-api
 
-Execução da aplicação:
-mvn spring-boot:run
 
-Execução dos testes:
-mvn test
+---
+
+## Upload de Arquivos (MinIO)
+
+A API integra com MinIO para:
+
+* Upload de arquivos
+* Geração de URLs pré-assinadas (presigned URLs)
+
+### Execução local
+
+O MinIO pode ser simulado via Docker:
+
+```bash
+docker run -p 9000:9000 -p 9001:9001 \
+  -e MINIO_ROOT_USER=minio \
+  -e MINIO_ROOT_PASSWORD=minio123 \
+  minio/minio server /data --console-address ":9001"
+```
+
+---
+
+## Paginação e Filtros
+
+Os endpoints de listagem suportam:
+
+* Paginação (`page`, `size`)
+* Ordenação
+* Filtro por nome (case-insensitive)
+
+Exemplo:
+
+```
+GET /artists?page=0&size=10&name=rock
+```
+
+---
+
+## Health Check e Liveness
+
+A aplicação disponibiliza endpoints para verificação de saúde:
+
+```
+GET /actuator/health
+GET /health
+```
+
+Resposta esperada:
+
+```json
+{ "status": "UP" }
+```
+
+Esses endpoints permitem fácil integração com ferramentas de monitoramento.
+
+---
+
+## Segurança Adicional
+
+* CORS configurado para evitar acesso indevido
+* Estrutura preparada para rate limiting
+
+
 
 ---
 
 ## Testes
 
-Os testes utilizam **JUnit 5** e **Spring Boot Test**, garantindo:
-- Carregamento correto do contexto da aplicação
-- Validação da configuração de segurança em ambiente de teste
-- Base para expansão de testes unitários e de integração
+O projeto possui estrutura preparada para testes unitários e de integração.
+
+> Cobertura foi mantida mínima por priorização de tempo e escopo, decisão explicitamente documentada.
 
 ---
 
-## Considerações Técnicas
+## Decisões Arquiteturais e Justificativas
 
-O projeto foi estruturado visando:
-- Clareza arquitetural
-- Manutenibilidade
-- Evolução futura
-- Aderência às boas práticas de desenvolvimento Back End
-- Atendimento direto aos critérios do edital
+* **JWT simplificado**: foco em autenticação stateless
+* **Sem WebSocket**: requisito considerado sênior e opcional
+* **Rate limit local**: evita dependência de infraestrutura externa
+* **Arquitetura em camadas**: clareza e manutenibilidade
 
 ---
 
-## Próximas Evoluções Previstas
+## Conclusão
 
-- Paginação e filtros avançados
-- Upload de arquivos e integração com MinIO
-- Health checks e liveness probes
-- Rate limiting e políticas de CORS
-- WebSocket para notificações em tempo real
+Este projeto demonstra domínio prático de desenvolvimento back-end com Spring Boot, priorizando organização, clareza, segurança e capacidade de evolução, atendendo aos critérios solicitados de forma objetiva e justificável.

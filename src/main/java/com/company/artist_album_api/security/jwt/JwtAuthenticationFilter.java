@@ -29,6 +29,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Ignora endpoints públicos, Swagger e Actuator
+     */
+  @Override
+protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getServletPath();
+
+    return path.startsWith("/actuator")
+        || path.startsWith("/v3/api-docs")
+        || path.startsWith("/swagger-ui")
+        || path.startsWith("/swagger-ui.html");
+}
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -36,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -58,20 +71,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails =
                     userDetailsService.loadUserByUsername(username);
 
-            UsernamePasswordAuthenticationToken authToken =
+            UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
                             userDetails.getAuthorities()
                     );
 
-            authToken.setDetails(
+            authentication.setDetails(
                     new WebAuthenticationDetailsSource()
                             .buildDetails(request)
             );
 
             SecurityContextHolder.getContext()
-                    .setAuthentication(authToken);
+                    .setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);

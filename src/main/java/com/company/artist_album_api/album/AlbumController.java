@@ -44,8 +44,10 @@ public class AlbumController {
     }
 
     @PutMapping("/{id}")
-    public AlbumResponse update(@PathVariable Long id,
-                                @RequestBody AlbumRequest request) {
+    public AlbumResponse update(
+            @PathVariable Long id,
+            @RequestBody AlbumRequest request
+    ) {
         return albumService.update(id, request);
     }
 

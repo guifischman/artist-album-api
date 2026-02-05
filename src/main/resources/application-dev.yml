@@ -1,3 +1,2 @@
-jwt:
-  secret: my-super-ultra-secure-jwt-secret-key-with-at-least-32-bytes
-  expiration: 3600000
+app:
+  profile-check: DEV_PROFILE_OK

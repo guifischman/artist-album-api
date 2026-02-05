@@ -24,9 +24,9 @@ server:
   port: 8080
 
 jwt:
-  secret: mySecretKey123456
-  expiration: 5
-  refresh-expiration: 30
+    secret: mySuperSecretKeyForJwtWithAtLeast32Chars!!
+    expiration: 30000
+    refresh-expiration: 30
 
 minio:
   url: http://localhost:9000
@@ -42,3 +42,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+  logging:
+  level:
+    org.springdoc: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    com.company.artist_album_api: DEBUG

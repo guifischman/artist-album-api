@@ -21,7 +21,6 @@ public class JwtService {
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration}") long expirationMillis
     ) {
-        // 🔐 Garante chave >= 256 bits (obrigatório pelo RFC 7518)
         this.secretKey = Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8)
         );
@@ -41,6 +40,9 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
         try {
             extractAllClaims(token);
             return true;
