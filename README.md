@@ -1,12 +1,14 @@
 Artist Album API
 
-API REST desenvolvida em Spring Boot para gerenciamento de artistas, álbuns e seus relacionamentos, com documentação via Swagger/OpenAPI, paginação, filtros e segurança baseada em JWT.
+API REST desenvolvida em Spring Boot para gerenciamento de artistas, álbuns e arquivos associados, com foco em boas práticas de arquitetura, segurança, escalabilidade e documentação.
 
- Tecnologias utilizadas
+Este projeto foi estruturado visando critérios técnicos de avaliação backend sênior, incluindo autenticação JWT, documentação OpenAPI, health checks e organização em camadas.
 
-Java 17+
+🛠️ Stack Tecnológica
 
-Spring Boot
+Java 17
+
+Spring Boot 3
 
 Spring Web
 
@@ -14,101 +16,173 @@ Spring Data JPA
 
 Spring Security (JWT)
 
-Spring Actuator
+Flyway (migrations)
+
+H2 Database (ambiente dev)
+
+MinIO (upload de arquivos)
 
 Springdoc OpenAPI (Swagger)
 
 Maven
 
-Banco de dados relacional (configurável por profile)
+📁 Arquitetura do Projeto
 
- Como executar o projeto
+Estrutura organizada em camadas bem definidas:
+
+controller  → exposição REST
+service     → regras de negócio
+repository  → acesso a dados
+model       → entidades JPA
+dto         → contratos de entrada e saída
+security    → autenticação e autorização
+config      → configurações globais
+
+
+Essa separação garante:
+
+Baixo acoplamento
+
+Alta legibilidade
+
+Facilidade de manutenção e evolução
+
+▶️ Como Executar o Projeto
 Pré-requisitos
 
-Java JDK 17 ou superior
+Java 17+
 
 Maven 3.9+
 
-Passos
-# ativar profile de desenvolvimento
-$env:SPRING_PROFILES_ACTIVE="dev"
+(Opcional) Docker para MinIO
 
-
-# executar aplicação
+Executando localmente
 mvn spring-boot:run
 
-A aplicação será iniciada em:
 
-http://localhost:8080
+O perfil dev é carregado automaticamente.
 
- Documentação da API (Swagger)
+🔐 Autenticação JWT
 
-Swagger UI:
+A API utiliza JWT stateless para autenticação.
 
-http://localhost:8080/swagger-ui.html
+Fluxo:
 
-OpenAPI JSON:
+Usuário autentica via endpoint de login
 
-http://localhost:8080/v3/api-docs
+Recebe um Access Token JWT
 
-A documentação é gerada automaticamente a partir dos controllers e DTOs.
-
- Segurança e Autenticação
-
-A API utiliza JWT (Bearer Token) como mecanismo de autenticação.
-
-Header esperado:
+O token deve ser enviado no header:
 
 Authorization: Bearer <token>
 
-Os endpoints públicos e protegidos são definidos via configuração de segurança.
 
-O Swagger já está configurado para aceitar autenticação via Bearer Token.
+Filtros validam o token a cada requisição protegida
 
-Observação: a implementação de segurança segue os critérios do desafio e pode ser estendida para controle de roles e permissões.
+Características:
 
- Health Checks
+Tokens com expiração configurável
 
-Foram implementados endpoints de saúde para monitoramento da aplicação:
+Validação de assinatura (HS256)
 
-Liveness:
+Renovação suportada
+
+Endpoints públicos liberados explicitamente
+
+📄 Documentação — Swagger / OpenAPI
+
+A API é totalmente documentada via Swagger.
+
+Acesso:
+http://localhost:8080/swagger-ui.html
+
+
+Ou:
+
+http://localhost:8080/swagger-ui/index.html
+
+
+A definição OpenAPI está disponível em:
+
+/v3/api-docs
+
+❤️ Health Checks (Liveness & Readiness)
+
+Endpoints de verificação de saúde do serviço:
+
+Liveness
 
 GET /health/liveness
 
-Readiness:
+
+Readiness
 
 GET /health/readiness
 
-Esses endpoints permitem verificar se a aplicação está ativa e pronta para receber requisições.
 
- Principais Endpoints
-Artists
+Esses endpoints são públicos e compatíveis com ambientes containerizados e orquestração (Kubernetes).
 
-GET /api/v1/artists
+📦 Funcionalidades Implementadas
 
-POST /api/v1/artists
+CRUD completo de artistas
 
-PUT /api/v1/artists/{id}
+CRUD completo de álbuns
 
-Albums
+Paginação e filtros
 
-GET /albums
+Upload de arquivos com MinIO
 
-GET /albums/{id}
+Geração de URLs assinadas (presigned URLs)
 
-POST /albums
+Autenticação JWT
 
-PUT /albums/{id}
+Segurança com filtros e CORS
 
-DELETE /albums/{id}
+Health checks
 
-Todos os endpoints aceitam e retornam JSON.
+Documentação OpenAPI
 
+🔒 Segurança
 
- Observações finais
+Spring Security com configuração explícita
 
-A API foi estruturada seguindo boas práticas de separação de responsabilidades (Controller, Service, DTO).
+Filtro JWT customizado
 
-O projeto está preparado para evolução futura (ex: novos relacionamentos, roles de segurança, versionamento de API).
+Exclusão de Swagger, Actuator e endpoints públicos do filtro
 
-Swagger e Health checks fazem parte dos critérios de avaliação técnica do projeto.
+Arquitetura preparada para rate limiting e RBAC
+
+🧪 Qualidade e Boas Práticas
+
+Código limpo e legível
+
+Responsabilidades bem definidas
+
+Versionamento incremental
+
+Estrutura preparada para crescimento
+
+Decisões técnicas documentadas
+
+🚀 Evoluções Futuras
+
+Persistência em banco relacional (PostgreSQL)
+
+Cache com Redis
+
+Rate limit por IP
+
+Observabilidade (Micrometer + Prometheus)
+
+Integração com mensageria (Kafka/RabbitMQ)
+
+👨‍💻 Autor
+
+Projeto desenvolvido como avaliação técnica backend, com foco em qualidade de código, arquitetura e maturidade profissional.
+
+🏁 Status
+
+✔ API estável
+✔ Swagger funcional
+✔ Segurança validada
+✔ Health checks operacionais
