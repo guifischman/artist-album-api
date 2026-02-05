@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
+// @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -29,18 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-    /**
-     * Ignora endpoints públicos, Swagger e Actuator
-     */
-  @Override
-protected boolean shouldNotFilter(HttpServletRequest request) {
-    String path = request.getServletPath();
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
 
-    return path.startsWith("/actuator")
-        || path.startsWith("/v3/api-docs")
-        || path.startsWith("/swagger-ui")
-        || path.startsWith("/swagger-ui.html");
-}
+        return path.startsWith("/actuator")
+            || path.startsWith("/v3/api-docs")
+            || path.startsWith("/swagger-ui")
+            || path.startsWith("/swagger-ui.html");
+    }
 
     @Override
     protected void doFilterInternal(

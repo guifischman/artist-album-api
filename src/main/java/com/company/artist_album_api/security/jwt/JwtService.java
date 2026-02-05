@@ -40,9 +40,6 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
-        if (token == null || token.isBlank()) {
-            return false;
-        }
         try {
             extractAllClaims(token);
             return true;
