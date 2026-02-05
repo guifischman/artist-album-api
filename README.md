@@ -1,213 +1,114 @@
-# Artist Album API
+Artist Album API
 
-## Visão Geral
+API REST desenvolvida em Spring Boot para gerenciamento de artistas, álbuns e seus relacionamentos, com documentação via Swagger/OpenAPI, paginação, filtros e segurança baseada em JWT.
 
-API REST desenvolvida em Spring Boot para gerenciamento de artistas e álbuns, com foco em boas práticas de arquitetura, segurança básica com JWT, integração com MinIO e requisitos típicos de avaliação técnica.
+ Tecnologias utilizadas
 
-** Este projeto prioriza clareza arquitetural, organização e demonstrabilidade dos requisitos solicitados. Algumas implementações foram simplificadas de forma consciente e estão justificadas neste documento.
+Java 17+
 
----
+Spring Boot
 
-## Tecnologias Utilizadas
+Spring Web
 
-* Java 17
-* Spring Boot 3.x
-* Spring Web
-* Spring Data JPA
-* Spring Security (JWT)
-* Springdoc OpenAPI (Swagger)
-* MinIO (upload de arquivos)
-* H2 / PostgreSQL (dependendo do profile)
-* Maven
+Spring Data JPA
 
----
+Spring Security (JWT)
 
-## Estrutura do Projeto
+Spring Actuator
 
-O projeto segue uma arquitetura em camadas:
+Springdoc OpenAPI (Swagger)
 
-* **controller**: exposição dos endpoints REST
-* **service**: regras de negócio
-* **repository**: acesso a dados (JPA)
-* **model/entity**: entidades do domínio
-* **dto**: objetos de transporte
-* **security**: configuração de segurança e JWT
-* **config**: configurações transversais (MinIO, Security, Swagger)
+Maven
 
-Essa separação garante baixo acoplamento, legibilidade e facilidade de manutenção.
+Banco de dados relacional (configurável por profile)
 
----
+ Como executar o projeto
+Pré-requisitos
 
-## Como Executar o Projeto
+Java JDK 17 ou superior
 
-### Pré-requisitos
+Maven 3.9+
 
-* Java 17+
-* Maven 3.9+
+Passos
+# ativar profile de desenvolvimento
+$env:SPRING_PROFILES_ACTIVE="dev"
 
-### Subir a aplicação
 
-```bash
-mvn clean spring-boot:run
-```
+# executar aplicação
+mvn spring-boot:run
 
-A aplicação estará disponível em:
+A aplicação será iniciada em:
 
-```
 http://localhost:8080
-```
 
----
+ Documentação da API (Swagger)
 
-## Perfis de Execução
+Swagger UI:
 
-* **dev** (padrão): banco em memória, foco em testes locais
-
-O profile ativo pode ser alterado via:
-
-```bash
--Dspring.profiles.active=dev
-```
-
----
-
-## Documentação da API (Swagger)
-
-Após subir a aplicação, a documentação pode ser acessada em:
-
-```
 http://localhost:8080/swagger-ui.html
-```
 
-Todos os endpoints principais estão documentados, incluindo:
+OpenAPI JSON:
 
-* CRUD de recursos
-* Paginação e filtros
-* Headers de autenticação
+http://localhost:8080/v3/api-docs
 
----
+A documentação é gerada automaticamente a partir dos controllers e DTOs.
 
-## Autenticação (JWT)
+ Segurança e Autenticação
 
-A API utiliza autenticação baseada em JWT.
+A API utiliza JWT (Bearer Token) como mecanismo de autenticação.
 
-### Fluxo simplificado adotado
+Header esperado:
 
-* Endpoint de login gera um token JWT
-* Token deve ser enviado no header:
-
-```
 Authorization: Bearer <token>
-```
 
-### Justificativa técnica
+Os endpoints públicos e protegidos são definidos via configuração de segurança.
 
-Para fins de avaliação, o fluxo foi propositalmente simplificado:
+O Swagger já está configurado para aceitar autenticação via Bearer Token.
 
-* Não há refresh token
-* Não há persistência de sessão
+Observação: a implementação de segurança segue os critérios do desafio e pode ser estendida para controle de roles e permissões.
 
-Essa abordagem reduz complexidade sem comprometer a demonstração do conhecimento em segurança stateless.
+ Health Checks
 
----
+Foram implementados endpoints de saúde para monitoramento da aplicação:
 
-## Segurança
+Liveness:
 
-A aplicação utiliza autenticação baseada em JWT (JSON Web Token),
-com filtro de segurança configurado via Spring Security.
+GET /health/liveness
 
-- Tokens possuem expiração configurável
-- Endpoints públicos:
-  - /auth/**
-  - /actuator/health
-  - /swagger-ui.html
-- Demais endpoints protegidos por autenticação
+Readiness:
 
+GET /health/readiness
 
+Esses endpoints permitem verificar se a aplicação está ativa e pronta para receber requisições.
 
----
+ Principais Endpoints
+Artists
 
-## Upload de Arquivos (MinIO)
+GET /api/v1/artists
 
-A API integra com MinIO para:
+POST /api/v1/artists
 
-* Upload de arquivos
-* Geração de URLs pré-assinadas (presigned URLs)
+PUT /api/v1/artists/{id}
 
-### Execução local
+Albums
 
-O MinIO pode ser simulado via Docker:
+GET /albums
 
-```bash
-docker run -p 9000:9000 -p 9001:9001 \
-  -e MINIO_ROOT_USER=minio \
-  -e MINIO_ROOT_PASSWORD=minio123 \
-  minio/minio server /data --console-address ":9001"
-```
+GET /albums/{id}
 
----
+POST /albums
 
-## Paginação e Filtros
+PUT /albums/{id}
 
-Os endpoints de listagem suportam:
+DELETE /albums/{id}
 
-* Paginação (`page`, `size`)
-* Ordenação
-* Filtro por nome (case-insensitive)
-
-Exemplo:
-
-```
-GET /artists?page=0&size=10&name=rock
-```
-
----
-
-## Health Check e Liveness
-
-A aplicação disponibiliza endpoints para verificação de saúde:
-
-```
-GET /actuator/health
-GET /health
-```
-
-Resposta esperada:
-
-```json
-{ "status": "UP" }
-```
-
-Esses endpoints permitem fácil integração com ferramentas de monitoramento.
-
----
-
-## Segurança Adicional
-
-* CORS configurado para evitar acesso indevido
-* Estrutura preparada para rate limiting
+Todos os endpoints aceitam e retornam JSON.
 
 
+ Observações finais
 
----
+A API foi estruturada seguindo boas práticas de separação de responsabilidades (Controller, Service, DTO).
 
-## Testes
+O projeto está preparado para evolução futura (ex: novos relacionamentos, roles de segurança, versionamento de API).
 
-O projeto possui estrutura preparada para testes unitários e de integração.
-
-> Cobertura foi mantida mínima por priorização de tempo e escopo, decisão explicitamente documentada.
-
----
-
-## Decisões Arquiteturais e Justificativas
-
-* **JWT simplificado**: foco em autenticação stateless
-* **Sem WebSocket**: requisito considerado sênior e opcional
-* **Rate limit local**: evita dependência de infraestrutura externa
-* **Arquitetura em camadas**: clareza e manutenibilidade
-
----
-
-## Conclusão
-
-Este projeto demonstra domínio prático de desenvolvimento back-end com Spring Boot, priorizando organização, clareza, segurança e capacidade de evolução, atendendo aos critérios solicitados de forma objetiva e justificável.
+Swagger e Health checks fazem parte dos critérios de avaliação técnica do projeto.
